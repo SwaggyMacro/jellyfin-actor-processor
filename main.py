@@ -17,7 +17,7 @@ BLUE = '\033[94m'
 RESET = '\033[0m'
 
 class ActorProcessor:
-    def __init__(self, api_url: str, api_key: str, max_retries: int = 3, max_workers: int = 10):
+    def __init__(self, api_url: str, api_key: str, max_retries: int = 3, max_workers: int = 10, timeout: int = 30):
         """Initialize the ActorProcessor with API credentials."""
         self.api_url = api_url.rstrip('/')
         if not self.api_url.endswith('/emby'):
@@ -28,6 +28,7 @@ class ActorProcessor:
         self.user_id = self.user_ids[0] if self.user_ids else None
         self.max_retries = max_retries
         self.max_workers = max_workers
+        self.timeout = timeout
 
         if not self.user_id:
             print(f"{RED}✗{RESET} No user IDs found.")
@@ -77,7 +78,7 @@ class ActorProcessor:
             response = self.session.get(
                 f"{self.api_url}/Persons",
                 params={"api_key": self.api_key, "enableImages": "false" if force else "true"},
-                timeout=30
+                timeout=self.timeout
             )
             response_time = (time.time() - start_time) * 1000
             speed = self.calculate_speed(len(response.content), response_time)
@@ -175,6 +176,7 @@ def main():
     parser.add_argument("-f", "--force", action="store_true", help="Process all persons")
     parser.add_argument("-r", "--retries", type=int, default=3, help="Maximum number of retries for failed requests")
     parser.add_argument("-w", "--workers", type=int, default=10, help="Maximum number of parallel workers")
+    parser.add_argument("-t", "--timeout", type=int, default=30, help="Timeout in seconds for fetching person data (default: 30)")
     args = parser.parse_args()
 
     print(f"{BLUE}ℹ{RESET} Jellyfin Actor Processor")
@@ -183,8 +185,9 @@ def main():
     print(f"{BLUE}ℹ{RESET} Force: {args.force}")
     print(f"{BLUE}ℹ{RESET} Retries: {args.retries}")
     print(f"{BLUE}ℹ{RESET} Workers: {args.workers}")
+    print(f"{BLUE}ℹ{RESET} Timeout: {args.timeout}s")
 
-    processor = ActorProcessor(args.url, args.api_key, args.retries, args.workers)
+    processor = ActorProcessor(args.url, args.api_key, args.retries, args.workers, args.timeout)
     
     if not processor.check_server_connectivity():
         sys.exit(1)

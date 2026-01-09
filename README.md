@@ -18,7 +18,7 @@ This script is inspired by a PowerShell script developed by [nagug](https://gith
 ```shell
 $python .\main.py --help
 
-usage: main.py [-h] -url URL -key API_KEY [-f] [-r RETRIES]
+usage: main.py [-h] -url URL -key API_KEY [-f] [-r RETRIES] [-w WORKERS] [-t TIMEOUT]
 
 Jellyfin Actor Processor
 
@@ -30,6 +30,10 @@ options:
   -f, --force           Process all persons
   -r RETRIES, --retries RETRIES
                         Maximum number of retries for failed requests
+  -w WORKERS, --workers WORKERS
+                        Maximum number of parallel workers
+  -t TIMEOUT, --timeout TIMEOUT
+                        Timeout in seconds for fetching person data (default: 30)
 ```
 # Features
 - Refreshes actor metadata: Automates API calls to Jellyfin to update actor information.
